@@ -18,10 +18,10 @@ type Video struct {
 	PlayUrl      string `json:"urls"`     // googlevideo.com domain.
 }
 
-// SearchVideoOne
+// SearchOneVideoKeyword
 // This is only for searching video on YouTube.
 // Support for only one searching result.
-func SearchVideoOne(keyword string, output chan *Video) {
+func SearchOneVideoKeyword(keyword string, output chan *Video) {
 	ytCommand := exec.Command(
 		YtDlpPath,
 		"--default-search=ytsearch",
