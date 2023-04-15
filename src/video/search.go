@@ -1,41 +1,40 @@
 package video
 
 import (
-	"fmt"
-	"io"
-	"io/ioutil"
+	"bytes"
+	"context"
 	"log"
-	"net/http"
-	"net/url"
-	"strings"
+	"os/exec"
 )
 
-type options struct {
-	Type  string
-	Limit uint32
-}
-
-func SearchVideo(keyword string) {
-	// results := make(any, 0)
-	// details := make(any, 0)
-	// fetched := false
-	// ops := options{Type: "video", Limit: 0}
-
-	url := fmt.Sprintf("https://youtube.com/results?q=%s&hl=kr", url.QueryEscape(keyword))
-	res, err := http.Get(url)
+func SearchVideo(keyword string, amount uint8, isPlaylist bool) (string, error) {
+	ytCommand, err := exec.CommandContext(context.Background(),
+		"yt-dlp",
+		"--use-extractors=\"youtube:search\"",
+		string("ytsearch"+amount+":"+keyword),
+		"--skip-download",
+		"--dump-json",
+	)
 	if err != nil {
-		log.Fatalln("get: ", err)
+		log.Fatalln("Error while creating yt-dlp command: ", err)
 	}
-	defer res.Body.Close()
 
-	b, err := io.ReadAll(res.Body)
+	// make a new empty buffer
+	var out bytes.Buffer
+	ytCommand.Stdout = &out
+
+	if isPlaylist {
+		ytCommand.Args = append(ytCommand.Args, "--yes-playlist")
+	} else {
+		ytCommand.Args = append(ytCommand.Args, "--no-playlist")
+	}
+
+	err = ytCommand.Run()
 	if err != nil {
-		log.Fatalln("read all: ", err)
+		return nil, err
 	}
-	body := string(b)
-	data := strings.Split(body, "ytInitialData =")[1]
-	data = strings.Split(data, ";</script>")[0]
-	// log.Println("Second data: ", data)
 
-	ioutil.WriteFile("data.json", []byte(data), 0644)
+	if err = ytCommand.Wait(); err != nil {
+		return nil, err
+	}
 }
