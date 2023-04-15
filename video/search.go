@@ -3,6 +3,7 @@ package video
 import (
 	"encoding/json"
 	"log"
+	"net/url"
 	"os/exec"
 )
 
@@ -26,6 +27,38 @@ func SearchOneVideoKeyword(keyword string, output chan *Video) {
 		YtDlpPath,
 		"--default-search=ytsearch",
 		string("ytsearch1:"+keyword),
+		"--skip-download",
+		"--no-playlist",
+		"--dump-json",
+	)
+
+	res, err := ytCommand.Output()
+	if err != nil {
+		log.Fatalln("Error during getting output: ", err)
+	}
+
+	video := &Video{}
+	err = json.Unmarshal(res, video)
+	if err != nil {
+		log.Fatalln("Error on converting json: ", err)
+	}
+	output <- video
+	close(output)
+}
+
+// SearchOneVideoUrl
+// This is only for searching video on YouTube using url.
+// If url is not valid, just close `output` channel.
+func SearchOneVideoUrl(rawurl string, output chan *Video) {
+	_, err := url.ParseRequestURI(rawurl)
+	if err != nil {
+		close(output)
+		return
+	}
+
+	ytCommand := exec.Command(
+		YtDlpPath,
+		rawurl,
 		"--skip-download",
 		"--no-playlist",
 		"--dump-json",
