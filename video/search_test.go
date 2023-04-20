@@ -51,3 +51,16 @@ func TestSearchOneVideoUrlFail(t *testing.T) {
 		return
 	}
 }
+
+func TestSearchPlaylistKeyword(t *testing.T) {
+	videoCh := make(chan *Video, 1)
+	go ExtractPlaylist("https://www.youtube.com/watch?v=IuqOUNEQOP0&list=RDIuqOUNEQOP0&start_radio=1", 5, videoCh)
+	for {
+		if v, ok := <-videoCh; ok {
+			t.Log("Playlist Video: ", v.Title)
+		} else if !ok {
+			t.Fatal("Channel closed.")
+			return
+		}
+	}
+}

@@ -97,3 +97,40 @@ func SearchOneVideoUrl(rawUrl string, output chan *Video) {
 	output <- video
 	close(output)
 }
+
+// ExtractPlaylist Extract video info from playlist.
+// this is not support for searching playlist.
+// So you have to input playlist url directly.
+func ExtractPlaylist(playlistUrl string, amount int, output chan *Video) {
+	if amount <= 0 {
+		close(output)
+		return
+	}
+	ytCommand := exec.Command(
+		YtDlpPath,
+		playlistUrl,
+		"--skip-download",
+		"--yes-playlist",
+		"--playlist-end="+fmt.Sprint(amount),
+		"--dump-json",
+	)
+
+	res, err := ytCommand.Output()
+	if err != nil {
+		log.Fatalln("Error during getting output: ", err)
+	}
+
+	const detect = "\"repository\": \"yt-dlp/yt-dlp\"}}"
+	arr := strings.Split(string(res), detect)
+	arr = arr[:len(arr)-1]
+
+	for _, raw := range arr {
+		video := &Video{}
+		err = json.Unmarshal([]byte(raw+detect), video)
+		if err != nil {
+			log.Fatalln("Error on converting json: ", err)
+		}
+		output <- video
+	}
+	close(output)
+}
