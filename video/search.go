@@ -22,6 +22,7 @@ type Video struct {
 }
 
 // SearchOneVideoKeyword
+//
 // Deprecated: Use SearchVideoKeyword instead.
 func SearchOneVideoKeyword(keyword string, output chan *Video) {}
 
