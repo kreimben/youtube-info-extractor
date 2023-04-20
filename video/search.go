@@ -2,9 +2,11 @@ package video
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/url"
 	"os/exec"
+	"strings"
 )
 
 var (
@@ -22,11 +24,17 @@ type Video struct {
 // SearchOneVideoKeyword
 // This is only for searching video on YouTube.
 // Support for only one searching result.
-func SearchOneVideoKeyword(keyword string, output chan *Video) {
+// amount is the amount of searching result.
+func SearchOneVideoKeyword(keyword string, amount int, output chan *Video) {
+	if amount <= 0 {
+		close(output)
+		return
+	}
+
 	ytCommand := exec.Command(
 		YtDlpPath,
 		"--default-search=ytsearch",
-		string("ytsearch1:"+keyword),
+		"ytsearch"+fmt.Sprint(amount)+":"+keyword,
 		"--skip-download",
 		"--no-playlist",
 		"--dump-json",
@@ -37,12 +45,18 @@ func SearchOneVideoKeyword(keyword string, output chan *Video) {
 		log.Fatalln("Error during getting output: ", err)
 	}
 
-	video := &Video{}
-	err = json.Unmarshal(res, video)
-	if err != nil {
-		log.Fatalln("Error on converting json: ", err)
+	const detect = "\"repository\": \"yt-dlp/yt-dlp\"}}"
+	arr := strings.Split(string(res), detect)
+	arr = arr[:len(arr)-1]
+
+	for _, raw := range arr {
+		video := &Video{}
+		err = json.Unmarshal([]byte(raw+detect), video)
+		if err != nil {
+			log.Fatalln("Error on converting json: ", err)
+		}
+		output <- video
 	}
-	output <- video
 	close(output)
 }
 
