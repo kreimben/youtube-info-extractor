@@ -69,8 +69,8 @@ func SearchVideoKeyword(keyword string, amount int, output chan *Video) {
 // This is only for searching video on YouTube using url.
 // If url is not valid, just close `output` channel.
 // Not support for playlist link.
-func SearchOneVideoUrl(rawurl string, output chan *Video) {
-	_, err := url.ParseRequestURI(rawurl)
+func SearchOneVideoUrl(rawUrl string, output chan *Video) {
+	_, err := url.ParseRequestURI(rawUrl)
 	if err != nil {
 		close(output)
 		return
@@ -78,7 +78,7 @@ func SearchOneVideoUrl(rawurl string, output chan *Video) {
 
 	ytCommand := exec.Command(
 		YtDlpPath,
-		rawurl,
+		rawUrl,
 		"--skip-download",
 		"--no-playlist",
 		"--dump-json",
