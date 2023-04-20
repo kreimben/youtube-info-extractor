@@ -21,11 +21,11 @@ type Video struct {
 	PlayUrl      string `json:"urls"`     // googlevideo.com domain.
 }
 
-// SearchOneVideoKeyword
+// SearchVideoKeyword
 // This is only for searching video on YouTube.
 // Support for only one searching result.
 // amount is the amount of searching result.
-func SearchOneVideoKeyword(keyword string, amount int, output chan *Video) {
+func SearchVideoKeyword(keyword string, amount int, output chan *Video) {
 	if amount <= 0 {
 		close(output)
 		return
@@ -63,6 +63,7 @@ func SearchOneVideoKeyword(keyword string, amount int, output chan *Video) {
 // SearchOneVideoUrl
 // This is only for searching video on YouTube using url.
 // If url is not valid, just close `output` channel.
+// Not support for playlist link.
 func SearchOneVideoUrl(rawurl string, output chan *Video) {
 	_, err := url.ParseRequestURI(rawurl)
 	if err != nil {
