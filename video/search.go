@@ -21,6 +21,10 @@ type Video struct {
 	PlayUrl      string `json:"urls"`     // googlevideo.com domain.
 }
 
+// SearchOneVideoKeyword
+// Deprecated: Use SearchVideoKeyword instead.
+func SearchOneVideoKeyword(keyword string, output chan *Video) {}
+
 // SearchVideoKeyword
 // This is only for searching video on YouTube.
 // Support for only one searching result.
