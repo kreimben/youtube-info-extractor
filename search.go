@@ -1,4 +1,4 @@
-package video
+package youtube_info_extractor
 
 import (
 	"encoding/json"
