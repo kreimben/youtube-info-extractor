@@ -8,16 +8,18 @@ go get github.com/kreimben/youtube-info-extractor
 
 ## Example
 ```go
-video.YtDlpPath = "/opt/homebrew/bin/yt-dlp" // can overwrite
+ytex "github.com/kreimben/youtube-info-extractor"
 
-videoCh := make(chan *video.Video)
-for {
-    go video.SearchOneVideoKeyword("위고 백지헌 직캠", videoCh)
-    if v, ok := <-videoCh; ok {
-        log.Println("No Playlist Video: ", v)
-    } else if !ok {
-        log.Println("EOF")
-        break
+func main() {
+    ytex.YtDlpPath = "/opt/homebrew/bin/yt-dlp" // can overwrite or just use it.
+    videoCh := make(chan *video.Video) // make channel to get a results.
+    for {
+        go video.SearchOneVideoKeyword("keyword you want to search like using youtube", videoCh)
+        if v, ok := <-videoCh; ok {
+            log.Println("video: ", v)
+        } else if !ok {
+            break
+        }
     }
 }
 ```
