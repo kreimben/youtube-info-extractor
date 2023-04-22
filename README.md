@@ -8,7 +8,7 @@ go get github.com/kreimben/youtube-info-extractor
 
 ## Example
 ```go
-ytex "github.com/kreimben/youtube-info-extractor"
+import ytex "github.com/kreimben/youtube-info-extractor"
 
 func main() {
     ytex.YtDlpPath = "/opt/homebrew/bin/yt-dlp" // can overwrite or just use it.
